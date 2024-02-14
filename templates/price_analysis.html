@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
     <style>
         body {
@@ -137,9 +138,7 @@
             transition: background-color 0.3s;
         }
 
-        button:hover {
-            background-color: #418bb0;
-        }
+        
 
         .info_box {
             border: 2px solid #22567b; /* Matching the h1 color */
@@ -150,6 +149,27 @@
             text-align: left; /* Aligned text to the left */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        .select-container, #datePickerContainer {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            width: 250px; /* Adjust width as needed */
+        }
+
+        #pricePopup {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            width: 250px; /* Adjust width as needed */
+        }
+
     </style>
 </head>
 <body>
@@ -183,13 +203,56 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-            </div>          
+            </div> 
+            <div id="datePickerContainer" class="select-container">
+                <label for="datePicker">Select a date:</label>
+                <div id="datePickerBox">
+                    <input type="date" id="datum" name="datum">
+
+                    <script>
+                        // Set today's date as the default value for the date input
+                        document.getElementById("datum").valueAsDate = new Date();
+                    </script>
+                </div>
+            </div>
+            <div id="pricePopup" style="display: none;"></div>        
         </div>
         <div id="right-section">
             <div id="calendar"></div>
         </div>
     </div>
+    <script>
+        $(document).ready(function() {
+            // Function to fetch and display prices for the selected date, hotel, and room type
+            function displayPricesForSelectedDate() {
+                const selectedDate = $("#datum").val();
+                const selectedHotel = $("#hotelDropdown").val();
+                const selectedRoomType = $("#kamertypeDropdown").val();
 
+                // Make a request to the server to get prices for the selected date, hotel, and room type
+                fetch(`/get_prices_by_date_and_type?date=${selectedDate}&hotel=${selectedHotel}&kamertype=${selectedRoomType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Display the prices in a popup div
+                        $("#pricePopup").html(`
+                            <p>Current price: €${data.current_price || "N/A"}</p>
+                            <p>Price strategy 1: €${data.average_price || "N/A"}</p>
+                            <p>Price strategy 2: €${data.mode_price || "N/A"}</p>
+                            <p>Price strategy 3: €${data.median_price || "N/A"}</p>
+                            <p>Last scraping result:</p>
+                            <p>${data.last_execution_time || "N/A"}</p>
+                        `);
+                        $("#pricePopup").show(); // Show the popup div
+                    })
+                    .catch(error => {
+                        console.error("Error fetching prices:", error);
+                    });
+            }
+
+            // Event listener for date picker change
+            $("#datum").change(displayPricesForSelectedDate);
+        });
+    </script>
     <script>
         $(document).ready(function() {
             // Function to fetch and update events based on hotel and kamertype
@@ -197,9 +260,8 @@
                 // Make a request to the server to get prices and average prices based on the selected hotel and kamertype
                 Promise.all([
                     fetch(`/get_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json()),
-                    fetch(`/get_mode_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json()),
                     fetch("/get_avg_prices_by_date").then(response => response.json())
-                ]).then(([pricesByDate, mode_prices_by_date,avgPricesByDate]) => {
+                ]).then(([pricesByDate,avgPricesByDate]) => {
                     // Clear existing events
                     $('#calendar').fullCalendar('removeEvents');
 
@@ -225,17 +287,7 @@
                             color: '#06313e'
                         });
                     }
-                    // Add new events based on the fetched prices
-                    for (const date in mode_prices_by_date) {
-                        const modusprice = mode_prices_by_date[date];
-                        $('#calendar').fullCalendar('renderEvent', {
-                            title: '€' + modusprice,
-                            start: date,
-                            end: date,
-                            modusprice: modusprice,
-                            color: 'orange'
-                        });
-                    }
+                    
                 });
             }
 
@@ -262,7 +314,16 @@
             updateCalendarEvents(selectedHotel, selectedKamertype);
         });
 
+        $(document).ready(function() {
+            // Function to initialize date picker
+            $('#datePicker').datepicker();
+
+            // Rest of your code
+        });
+
     </script>
+
+    
     <footer>
         <div class="footer-box">
             <div class="footer-content">

@@ -8,9 +8,10 @@ from endpoints import start_scraping, scraping_result, price_analysis
 app = FastAPI()
 @app.get("/")
 def root():
-    return "Big Data API"
+    return {"Application": "Big Data API",
+            "Generation": "YCN2401",} 
 
-
+# mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
