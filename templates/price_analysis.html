@@ -374,7 +374,7 @@
                     .then(data => {
                         // Display the prices in a popup div
                         $("#pricePopup").html(`
-                            <p>Current price: €${data.current_price || "N/A"}</p>
+                            <p>Current price: €${data.current_price || 'N/A'} <button id="editCurrentPrice">&#9997;</button></p>
                             <p>Price strategy 1: €${data.average_price || "N/A"}</p>
                             <p>Price strategy 2: €${data.mode_price || "N/A"}</p>
                             <p>Price strategy 3: €${data.median_price || "N/A"}</p>
@@ -407,7 +407,7 @@
 
             // Function to display with a delay
             function displayWithDelay(func) {
-                setTimeout(func, 1000); // Adjust the delay as needed
+                setTimeout(func, 500); // Adjust the delay as needed
             }
     
             // Event listeners for dropdown changes to update the calendar events
@@ -423,8 +423,12 @@
                     left: 'prev,next today',
                     center: 'title',
                     right: 'month'
+                },
+                // Add event after the calendar is rendered
+                viewRender: function(view, element) {
+                    // Update calendar events when the view changes
+                    updateCalendarEvents($("#hotelDropdown").val(), $("#kamertypeDropdown").val());
                 }
-                // Add other configuration options as needed
             });
     
             // Initial update based on the default hotel and kamertype
@@ -434,6 +438,18 @@
     
             // Set today's date as the default value for the date input
             document.getElementById("datum").valueAsDate = new Date();
+
+            // Event listener for the "Edit" button next to the current price
+            $(document).on("click", "#editCurrentPrice", function() {
+                // Display an alert with an input field for editing the price
+                const newPrice = prompt("Enter the new price:");
+                if (newPrice !== null) {
+                    // Handle the new price (e.g., update it on the server)
+                    alert(`The new price is: €${newPrice}`);
+                    // Update the displayed price if needed
+                    // Example: $("#currentPrice").text(`€${newPrice}`);
+                }
+            });
         });
     </script>
       <footer>
