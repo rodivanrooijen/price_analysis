@@ -165,14 +165,22 @@
                 <label for="hotelDropdown">Select a hotel:</label>
                 <select id="hotelDropdown">
                     {% for hotel in hotels %}
-                        <option value="{{ hotel }}">{{ hotel }}</option>
+                        {% if hotel == "Maastricht Hotel" %}
+                            <option value="{{ hotel }}" selected>{{ hotel }}</option>
+                        {% else %}
+                            <option value="{{ hotel }}">{{ hotel }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             
                 <label for="kamertypeDropdown">Select a roomtype:</label>
                 <select id="kamertypeDropdown">
                     {% for kamertype in kamertypes %}
-                        <option value="{{ kamertype }}">{{ kamertype }}</option>
+                        {% if kamertype == "twee_persoons_kamer" %}
+                            <option value="{{ kamertype }}" selected>{{ kamertype }}</option>
+                        {% else %}
+                            <option value="{{ kamertype }}">{{ kamertype }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>          
