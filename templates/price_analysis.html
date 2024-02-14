@@ -106,8 +106,8 @@
         }
 
         #calendar {
-            max-width: 1000px;
-            width: 100%;
+            max-width: 800px; /* Adjust based on your preference */
+            margin-top: 0; /* Remove the margin-top */
         }
 
         footer {
@@ -169,6 +169,34 @@
             background-color: #fff;
             width: 250px; /* Adjust width as needed */
         }
+        
+        #scatterPlot {
+            /* Remove border */
+            border: none;
+            /* Remove background */
+            background-color: transparent;
+            /* Remove shadow */
+            box-shadow: none;
+            margin-top: -10px; /* Adjust as needed */
+            width: 200px;
+            margin-bottom: -20px;
+        }
+
+        #otherPlot {
+            /* Remove border */
+            border: none;
+            /* Remove background */
+            background-color: transparent;
+            /* Remove shadow */
+            box-shadow: none;
+            margin-top: -10px; /* Adjust as needed */
+            margin-left: 75%;
+            width: 200px;
+            margin-bottom: -20px;
+        }
+
+
+
 
     </style>
 </head>
@@ -215,44 +243,22 @@
                     </script>
                 </div>
             </div>
-            <div id="pricePopup" style="display: none;"></div>        
+            <div id="pricePopup" style="display: none;"></div>
+
+            <div id="plotsContainer" class="container">
+                <div id="scatterPlot" class="info_box">
+                    <!-- Scatter plot will be inserted here -->
+                </div>
+                <div id="otherPlot" class="info_box">
+                    <!-- Second plot will be inserted here -->
+                </div>
+            </div>
+
         </div>
         <div id="right-section">
             <div id="calendar"></div>
         </div>
     </div>
-    <script>
-        $(document).ready(function() {
-            // Function to fetch and display prices for the selected date, hotel, and room type
-            function displayPricesForSelectedDate() {
-                const selectedDate = $("#datum").val();
-                const selectedHotel = $("#hotelDropdown").val();
-                const selectedRoomType = $("#kamertypeDropdown").val();
-
-                // Make a request to the server to get prices for the selected date, hotel, and room type
-                fetch(`/get_prices_by_date_and_type?date=${selectedDate}&hotel=${selectedHotel}&kamertype=${selectedRoomType}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Display the prices in a popup div
-                        $("#pricePopup").html(`
-                            <p>Current price: €${data.current_price || "N/A"}</p>
-                            <p>Price strategy 1: €${data.average_price || "N/A"}</p>
-                            <p>Price strategy 2: €${data.mode_price || "N/A"}</p>
-                            <p>Price strategy 3: €${data.median_price || "N/A"}</p>
-                            <p>Last scraping result:</p>
-                            <p>${data.last_execution_time || "N/A"}</p>
-                        `);
-                        $("#pricePopup").show(); // Show the popup div
-                    })
-                    .catch(error => {
-                        console.error("Error fetching prices:", error);
-                    });
-            }
-
-            // Event listener for date picker change
-            $("#datum").change(displayPricesForSelectedDate);
-        });
-    </script>
     <script>
         $(document).ready(function() {
             // Function to fetch and update events based on hotel and kamertype
@@ -261,10 +267,10 @@
                 Promise.all([
                     fetch(`/get_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json()),
                     fetch("/get_avg_prices_by_date").then(response => response.json())
-                ]).then(([pricesByDate,avgPricesByDate]) => {
+                ]).then(([pricesByDate, avgPricesByDate]) => {
                     // Clear existing events
                     $('#calendar').fullCalendar('removeEvents');
-
+    
                     // Add new events based on the fetched average prices
                     for (const date in avgPricesByDate) {
                         const avgPrice = avgPricesByDate[date];
@@ -287,17 +293,130 @@
                             color: '#06313e'
                         });
                     }
-                    
+    
                 });
             }
+    
+            // Function to fetch and display the scatter plot
+            function displayScatterPlot() {
+                const selectedDate = $("#datum").val();
+                const selectedHotel = $("#hotelDropdown").val();
+                const selectedRoomType = $("#kamertypeDropdown").val();
+    
+                // Make a request to the server to fetch the scatter plot
+                fetch(`/get_prices_by_date_and_type?date=${selectedDate}&hotel=${selectedHotel}&kamertype=${selectedRoomType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Remove any existing scatter plot
+                        $("#scatterPlot img").remove();
+    
+                        // Create an <img> element and set its source to the base64-encoded image
+                        const img = document.createElement("img");
+                        img.src = `data:image/png;base64, ${data.plot_base64}`;
+                        // Set width and height of the image element
+                        img.style.width = "600px";
+                        img.style.height = "500px";
+    
+                        // Append the <img> element to the scatter plot container
+                        $("#scatterPlot").append(img);
+                        
+                    })
+                    .catch(error => {
+                        console.error("Error fetching scatter plot:", error);
+                    });
+            }
+            
+            // Function to display the scatter plot with a delay of 500 milliseconds after date change
+            function displayScatterPlotWithDelay() {
+                setTimeout(function() {
+                    displayScatterPlot();
+                }, 500); // 500 milliseconds delay
+            }
+    
+            // Function to fetch and display the second plot
+            function displayOtherPlot() {
+                const selectedDate = $("#datum").val();
+                const selectedHotel = $("#hotelDropdown").val();
+                const selectedRoomType = $("#kamertypeDropdown").val();
+    
+                // Make a request to the server to fetch the image_base64 data for the second plot
+                fetch(`/get_prices_by_date_and_type?date=${selectedDate}&hotel=${selectedHotel}&kamertype=${selectedRoomType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Remove any existing second plot
+                        $("#otherPlot img").remove();
+    
+                        // Create an <img> element and set its source to the base64-encoded image
+                        const img = document.createElement("img");
+                        img.src = `data:image/png;base64, ${data.image_base64}`;
+                        img.alt = "Second Plot";
+                        // Set width and height of the image element
+                        img.style.width = "750px";
+                        img.style.height = "500px";
+    
+                        // Append the <img> element to the second plot container
+                        $("#otherPlot").append(img);
+                    })
+                    .catch(error => {
+                        console.error("Error fetching second plot:", error);
+                    });
+            }
+    
+            // Function to fetch and display prices for the selected date, hotel, and room type
+            function displayPricesForSelectedDate() {
+                const selectedDate = $("#datum").val();
+                const selectedHotel = $("#hotelDropdown").val();
+                const selectedRoomType = $("#kamertypeDropdown").val();
+    
+                // Make a request to the server to get prices for the selected date, hotel, and room type
+                fetch(`/get_prices_by_date_and_type?date=${selectedDate}&hotel=${selectedHotel}&kamertype=${selectedRoomType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Display the prices in a popup div
+                        $("#pricePopup").html(`
+                            <p>Current price: €${data.current_price || "N/A"}</p>
+                            <p>Price strategy 1: €${data.average_price || "N/A"}</p>
+                            <p>Price strategy 2: €${data.mode_price || "N/A"}</p>
+                            <p>Price strategy 3: €${data.median_price || "N/A"}</p>
+                            <p>Last scraping result:</p>
+                            <p>${data.last_execution_time || "N/A"}</p>
+                        `);
+                        $("#pricePopup").show(); // Show the popup div
+                        
+                    })
+                    .catch(error => {
+                        console.error("Error fetching prices:", error);
+                    });
+            }
+    
+            // Initially hide elements
+            $("#scatterPlot, #otherPlot, #pricePopup").hide();
+    
+            // Event listener for date picker change to update scatter plot, other plot, and prices
+            $("#datum").change(function() {
+                // Show elements if this is the first time date is changed
+                if (!$(this).data('changed')) {
+                    $("#scatterPlot, #otherPlot, #pricePopup").show();
+                    $(this).data('changed', true);
+                }
+                // Call all functions to display scatter plot, other plot, and prices
+                displayScatterPlotWithDelay();
+                displayOtherPlot();
+                displayPricesForSelectedDate();
+            });
 
-            // Event listeners for dropdown changes
+            // Function to display with a delay
+            function displayWithDelay(func) {
+                setTimeout(func, 1000); // Adjust the delay as needed
+            }
+    
+            // Event listeners for dropdown changes to update the calendar events
             $("#hotelDropdown, #kamertypeDropdown").change(function() {
                 const selectedHotel = $("#hotelDropdown").val();
                 const selectedKamertype = $("#kamertypeDropdown").val();
                 updateCalendarEvents(selectedHotel, selectedKamertype);
             });
-
+    
             // Calendar configuration options
             $('#calendar').fullCalendar({
                 header: {
@@ -307,24 +426,17 @@
                 }
                 // Add other configuration options as needed
             });
-
+    
             // Initial update based on the default hotel and kamertype
             const selectedHotel = $("#hotelDropdown").val();
             const selectedKamertype = $("#kamertypeDropdown").val();
             updateCalendarEvents(selectedHotel, selectedKamertype);
-        });
-
-        $(document).ready(function() {
-            // Function to initialize date picker
-            $('#datePicker').datepicker();
-
-            // Rest of your code
-        });
-
-    </script>
-
     
-    <footer>
+            // Set today's date as the default value for the date input
+            document.getElementById("datum").valueAsDate = new Date();
+        });
+    </script>
+      <footer>
         <div class="footer-box">
             <div class="footer-content">
                 <button onclick="window.location.href='/start_scraping'">Start scraping</button>

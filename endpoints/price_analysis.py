@@ -8,6 +8,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from datetime import date, datetime
 from decimal import Decimal
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import base64
+import io as BytesIO
+import io
 
 from supporting_scripts.db_connection import get_db, HotelData, Prijzen
 
@@ -179,10 +185,89 @@ async def get_prices_by_date_and_type(date: str, hotel: str, kamertype: str, db:
     if last_execution_time is None:
         last_execution_time = datetime.now()
 
+
+
+
+    #graphs
+    # Query the database to fetch prices from the hoteldata table based on the selected date
+    hotelgegevens = db.query(HotelData.prijs).filter(HotelData.checkin_datum == date).all()
+    # Convert the query result to a pandas DataFrame for easier manipulation
+    hotelgegevens = pd.DataFrame(hotelgegevens, columns=['prijs'])
+    # Calculate average, mode, and median prices
+    average_price1 = hotelgegevens['prijs'].mean()
+    modus_price1 = hotelgegevens['prijs'].mode()[0]  # Mode may have multiple values, so take the first one
+    median_price1 = hotelgegevens['prijs'].median()
+
+    # Plot a bar chart for price distribution
+    plt.figure(figsize=(8, 6))
+    sns.histplot(hotelgegevens['prijs'], bins=40, kde=False, color="skyblue")
+    plt.title("Price Distribution")
+    plt.xlabel("Price")
+    plt.ylabel("Number of hotels")
+
+    # Add text annotations for average_price, median_price, and mode_price
+    plt.axvline(x=average_price1, color='red', linestyle='--', linewidth=2, label=f'Average Price: €{average_price1:.2f}')
+    plt.axvline(x=median_price1, color='green', linestyle='--', linewidth=2, label=f'Median: €{median_price1:.2f}')
+    plt.axvline(x=modus_price1, color='blue', linestyle='--', linewidth=2, label=f'Mode: €{modus_price1:.2f}')
+
+    plt.legend()  # Show legend with annotations
+
+    # Save the plot to a BytesIO object
+    image_stream = io.BytesIO()
+    plt.savefig(image_stream, format="png")
+    image_stream.seek(0)
+
+    # Encode the image to base64 for embedding in HTML
+    image_base64 = base64.b64encode(image_stream.read()).decode("utf-8")
+
+    # Close the plot to release resources
+    plt.close()
+
+    #plot 2
+    # Query the database to fetch hotel data
+    hotelgegevens2 = db.query(HotelData.naam, HotelData.locatie, HotelData.prijs, HotelData.beoordeling).filter(HotelData.checkin_datum == date).all()
+
+    # Convert the query result to a pandas DataFrame for easier manipulation
+    hotelgegevens2 = pd.DataFrame(hotelgegevens2, columns=['naam', 'locatie', 'prijs', 'beoordeling'])
+
+    # Data preprocessing
+    hotelgegevens2['naam'] = hotelgegevens2['naam'].astype(str)
+    hotelgegevens2['locatie'] = hotelgegevens2['locatie'].astype(str)
+    hotelgegevens2['prijs'] = pd.to_numeric(hotelgegevens2['prijs'], errors='coerce').astype(pd.Int64Dtype())
+    hotelgegevens2['beoordeling'] = hotelgegevens2['beoordeling'].astype(float)
+
+    # Plotting
+    unique_locations = hotelgegevens2['locatie'].unique()
+    color_palette = sns.color_palette('Set1', n_colors=len(unique_locations))
+
+    plt.figure(figsize=(8, 6))
+    for i, location in enumerate(unique_locations):
+        subset = hotelgegevens2[hotelgegevens2['locatie'] == location]
+        scatter = plt.scatter(subset['prijs'], subset['beoordeling'], color=color_palette[i], alpha=0.7, label=location)
+
+    plt.xlabel('Price', fontsize=12)
+    plt.ylabel('Rating', fontsize=12)
+    plt.title('Distribution of Prices, Ratings, and Locations of Hotels', fontsize=14)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.tight_layout()
+
+    # Save the plot to an in-memory buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    plot_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+    # Close the plot to release resources
+    plt.close()
     return {
         "average_price": average_price,
         "mode_price": mode_price,
         "median_price": median_price,
         "current_price": current_price,
-        "last_execution_time": last_execution_time
+        "last_execution_time": last_execution_time,
+        "image_base64": image_base64,
+        "plot_base64": plot_base64
     }
