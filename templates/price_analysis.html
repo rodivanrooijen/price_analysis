@@ -5,35 +5,38 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Analysis</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
-    
-    
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center content horizontally */
-            min-height: 100vh; /* Ensure the body takes up at least the full height of the viewport */
+            align-items: center;
+            min-height: 100vh;
         }
 
         .header {
-            margin-top: 1vh;
+            margin-top: 20px;
             text-align: center;
         }
 
         .container {
             display: flex;
-            margin-top: 5vh;
+            margin-top: 20px;
         }
 
-        /* Added styles for dropdown menus */
+        #left-section, #right-section {
+            margin: 10px; /* Adjust as needed */
+        }
+
         #left-section {
             flex: 1;
             padding: 20px;
@@ -45,21 +48,22 @@
         #right-section {
             flex: 1;
             padding: 20px;
-            max-width: 600px; /* Set maximum width for the right section */
-            width: 100%; /* Ensure the right section takes up the available width */
-            overflow: auto; /* Enable scrolling if content overflows */
+            max-width: 1000px;
+            width: 100%;
+            overflow: auto;
         }
 
         h1 {
-            color: rgb(17, 81, 102); /* Change to your preferred color */
+            color: #06313e;
             font-family: 'Lobster', cursive;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
 
         select {
             padding: 10px;
             font-size: 16px;
-            border: 1px solid #ccc;
+            border: 1px solid #ccc; /* Add border */
             border-radius: 5px;
             margin-bottom: 10px;
             background-color: #fff;
@@ -70,6 +74,24 @@
 
         select:hover {
             border-color: #555;
+        }
+
+        /* Add border styling for the select container */
+        .select-container {
+            border: 1px solid #ccc; /* Add border */
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            width: fit-content; /* Adjust width to fit content */
+            margin: 0 auto; /* Center the container */
+        }
+
+        /* Ensure labels and selects are displayed as block elements for vertical stacking */
+        .select-container label,
+        .select-container select {
+            display: block;
+            margin-bottom: 10px; /* Add spacing between elements */
         }
 
         select:focus {
@@ -83,30 +105,29 @@
         }
 
         #calendar {
-            max-width: 600px;
+            max-width: 1000px;
             width: 100%;
         }
 
-            
         footer {
             background-color: #f4f4f4;
-            padding: 10px;
+            padding: 20px;
             text-align: center;
-            margin-top: 20vh; /* Push footer to the bottom */
-            width: 100%; /* Ensure footer spans the entire width */
+            margin-top: auto;
+            width: 100%;
         }
 
         .footer-box {
             text-align: center;
-            display: inline-block; /* Ensures center alignment */
+            display: inline-block;
         }
 
         .footer-content {
-            display: inline-block; /* Ensures center alignment */
+            display: inline-block;
         }
 
         button {
-            background-color: rgb(17, 81, 102);
+            background-color: #06313e;
             color: #fff;
             border: none;
             padding: 10px 20px;
@@ -117,7 +138,17 @@
         }
 
         button:hover {
-            background-color: rgb(12, 62, 80);
+            background-color: #418bb0;
+        }
+
+        .info_box {
+            border: 2px solid #22567b; /* Matching the h1 color */
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto; /* Centered and spaced from other elements */
+            max-width: 600px; /* Limit width for better readability */
+            text-align: left; /* Aligned text to the left */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -125,23 +156,26 @@
     <div class="header">
         <h1>Price Analysis Tool</h1>
     </div>
+    <div class="info_box">
+        <p>This tool can help you analyse the prices of a hotel and roomtype compared to competitors.In red you find the average price of competitors in the region. If prices are not available, you can start scraping prices for this date.</p>
+    </div>
     <div class="container">
         <div id="left-section">
+            <div class="select-container">
+                <label for="hotelDropdown">Select a hotel:</label>
+                <select id="hotelDropdown">
+                    {% for hotel in hotels %}
+                        <option value="{{ hotel }}">{{ hotel }}</option>
+                    {% endfor %}
+                </select>
             
-
-            <label>Selecteer een hotel:</label>
-            <select id="hotelDropdown">
-                {% for hotel in hotels %}
-                    <option value="{{ hotel }}">{{ hotel }}</option>
-                {% endfor %}
-            </select>
-
-            <label>Selecteer een kamertype:</label>
-            <select id="kamertypeDropdown">
-                {% for kamertype in kamertypes %}
-                    <option value="{{ kamertype }}">{{ kamertype }}</option>
-                {% endfor %}
-            </select>
+                <label for="kamertypeDropdown">Select a roomtype:</label>
+                <select id="kamertypeDropdown">
+                    {% for kamertype in kamertypes %}
+                        <option value="{{ kamertype }}">{{ kamertype }}</option>
+                    {% endfor %}
+                </select>
+            </div>          
         </div>
         <div id="right-section">
             <div id="calendar"></div>
@@ -155,12 +189,11 @@
                 // Make a request to the server to get prices and average prices based on the selected hotel and kamertype
                 Promise.all([
                     fetch(`/get_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json()),
+                    fetch(`/get_mode_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json()),
                     fetch("/get_avg_prices_by_date").then(response => response.json())
-                ]).then(([pricesByDate, avgPricesByDate]) => {
+                ]).then(([pricesByDate, mode_prices_by_date,avgPricesByDate]) => {
                     // Clear existing events
                     $('#calendar').fullCalendar('removeEvents');
-
-                    
 
                     // Add new events based on the fetched average prices
                     for (const date in avgPricesByDate) {
@@ -170,7 +203,7 @@
                             start: date,
                             end: date,
                             avgPrice: avgPrice,
-                            color: 'orange'
+                            color: '#cc635b'
                         });
                     }
                     // Add new events based on the fetched prices
@@ -181,7 +214,18 @@
                             start: date,
                             end: date,
                             price: price,
-                            color: 'lightblue'
+                            color: '#06313e'
+                        });
+                    }
+                    // Add new events based on the fetched prices
+                    for (const date in mode_prices_by_date) {
+                        const modusprice = mode_prices_by_date[date];
+                        $('#calendar').fullCalendar('renderEvent', {
+                            title: '€' + modusprice,
+                            start: date,
+                            end: date,
+                            modusprice: modusprice,
+                            color: 'orange'
                         });
                     }
                 });
@@ -213,14 +257,11 @@
     </script>
     <footer>
         <div class="footer-box">
-            <div class="footer-content"> <!-- Added container for footer content -->
-                <button onclick="window.location.href='/'">Start scraping</button>
-                <button onclick="window.location.href='/price_analysis'">Go to Price Analysis</button>
-                <p>© 2024 - Booking.com Web Scraping</p>
+            <div class="footer-content">
+                <button onclick="window.location.href='/start_scraping'">Start scraping</button>
+                <p>© 2024 - Papaya Palms resorts - Price Analysis</p>
             </div>
         </div>
     </footer>
-    
 </body>
 </html>
-

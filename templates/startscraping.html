@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Start Scraping</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
+    <title>Scraping Tool - Management</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='start_scraping.css') }}">
 </head>
 <body>
+    
     <h1>Booking.com scraping</h1>
+
+    <div class="info_box">
+        <p>This tool scrapes Booking.com on the entered parameters below. The results will show all competitors in the neighbourhood.</p>
+    </div>
+
     <p>Choose the desired input parameters:</p>
 
     <form id="dataForm" action="/" method="POST" enctype="application/x-www-form-urlencoded">
@@ -46,10 +52,17 @@
 
         <!-- Use type="button" to prevent form submission -->
         <button type="button" onclick="submitForm()">Submit the input</button>
+        <div id="loading" class="hidden">
+            <div class="loader"></div>
+        </div> <!-- Hidden by default -->
     </form>
 
     <script>
         function submitForm() {
+
+            // Show loading spinner
+            document.getElementById("loading").classList.remove("hidden");
+
             // Get values from the form
             const stad = document.getElementById("stad").value;
             const datum = document.getElementById("datum").value;
@@ -66,11 +79,8 @@
     </script>
     <footer>
         <div class="footer-box">
-            
-            <button onclick="window.location.href='/'">Start scraping</button>
             <button onclick="window.location.href='/price_analysis'">Go to Price Analysis</button>
-            
-            <p>© 2024 - Booking.com Web Scraping</p>
+            <p>© 2024 - Papaya Palms resorts - Booking.com scraping</p>
         </div>
         
     </footer>

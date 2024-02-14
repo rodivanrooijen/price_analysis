@@ -67,9 +67,9 @@ async def scrapingresult(
         subset = hotelgegevens[hotelgegevens['locatie'] == location]
         scatter = plt.scatter(subset['prijs'], subset['beoordeling'], color=color_palette[i], alpha=0.7, label=location)
 
-    plt.xlabel('Prijs', fontsize=12)
-    plt.ylabel('Beoordeling', fontsize=12)
-    plt.title('Verdeling van de Prijzen, Beoordelingen en Locaties van Hotels', fontsize=14)
+    plt.xlabel('Price', fontsize=12)
+    plt.ylabel('Rating', fontsize=12)
+    plt.title('Distribution of Prices, Ratings, and Locations of Hotels', fontsize=14)
     plt.legend(fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.xticks(fontsize=10)
@@ -94,7 +94,7 @@ async def scrapingresult(
     sns.histplot(hotelgegevens['prijs'], bins=40, kde=False, color="skyblue")
     plt.title("Price Distribution")
     plt.xlabel("Price")
-    plt.ylabel("Frequency")
+    plt.ylabel("Number of hotels")
 
     # Add text annotations for average_price and median_price
     plt.axvline(x=average_price, color='red', linestyle='--', linewidth=2, label=f'Average Price: €{average_price:.2f}')

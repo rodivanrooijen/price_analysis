@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, func
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, func, select, literal_column, text
+from sqlalchemy.sql import cast
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from datetime import date, datetime
+from decimal import Decimal
 
 from supporting_scripts.db_connection import get_db, HotelData, Prijzen
 
@@ -91,6 +93,47 @@ async def get_avg_prices_by_date(db: Session = Depends(get_db)):
         else:
             formatted_date = datetime.strptime(date_str, "%Y-%m-%d").date().strftime("%Y-%m-%d")
 
-        avg_prices_by_date[formatted_date] = avg_price
+        avg_prices_by_date[formatted_date] = round(avg_price)
 
     return avg_prices_by_date
+
+@router.get("/get_mode_prices_by_date")
+async def get_mode_prices_by_date(db: Session = Depends(get_db)):
+    """
+    Endpoint to fetch mode prices per date from the HotelData table.
+
+    Returns:
+    - A JSON response containing mode prices by date.
+    """
+    mode_prices_by_date = {}
+
+    # Subquery to count occurrences of each price for each date
+    subquery = db.query(
+        func.date(HotelData.checkin_datum).label("date"),
+        HotelData.prijs.label("price"),
+        func.count().label("count")
+    ).group_by(
+        func.date(HotelData.checkin_datum),
+        HotelData.prijs
+    ).subquery()
+
+    # Query to select the price with the maximum count for each date
+    query = db.query(subquery.c.date, subquery.c.price).filter(
+        subquery.c.count == db.query(func.max(subquery.c.count)).filter(
+            subquery.c.date == HotelData.checkin_datum
+        )
+    )
+
+    # Execute the query
+    mode_prices = query.all()
+
+    for date_str, mode_price in mode_prices:
+        # Convert string date to datetime object
+        if isinstance(date_str, date):  # Check if date_str is already a date object
+            formatted_date = date_str.strftime("%Y-%m-%d")
+        else:
+            formatted_date = datetime.strptime(date_str, "%Y-%m-%d").date().strftime("%Y-%m-%d")
+
+        mode_prices_by_date[formatted_date] = round(mode_price)
+
+    return mode_prices_by_date
