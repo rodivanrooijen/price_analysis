@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking.com web scraping</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
+
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- Your script section -->
+    <script>
+        async function loadDataToDatabase() {
+            try {
+                // Make an asynchronous request to /load_data endpoint
+                const response = await fetch('/load_data', { method: 'POST' });
+                const data = await response.json();
+
+                // Display a popup message based on the response
+                if (response.ok && data.message === 'Data successfully loaded into the database.') {
+                    alert('Data successfully loaded to the database!');
+                } else {
+                    alert('Error loading data to the database. Please try again.');
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+                alert('An error occurred. Please check the console for details.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Booking.com Web Scraping</h1>
+    <div class="container">
+        <div class="details">
+            <strong>Input parameters:</strong>
+            <p>Stad: {{stad}}</p>
+            <p>Check-in datum: {{checkin_datum}}</p>
+            <p>Check-out datum: {{checkout_datum}}</p>
+            <p>Aantal personen: {{num_volwassenen}} volwassenen en {{num_kinderen}} kinderen</p>
+            <p>Maximaal aantal pagina's: {{max_paginas}}</p>
+        </div>
+        <div class="statistics">
+            <strong>Output:</strong>
+            <p>Gemiddelde Prijs: €{{ gemiddelde_prijs }}</p>
+            <p>Mediaan: €{{ mediaan_prijs }}</p>
+            <p>Modus: €{{ modus_prijs }}</p>
+            <p>Laatste live connectie: {{last_execution_time}}</p>
+            <p>Status: {{last_execution_status}}</p>
+
+            {% if last_execution_status == "Live" %}
+            <div class="button-container">
+                <form method="post" action="{{ url_for('save_data') }}">
+                    <button type="submit">Opslaan als CSV</button>
+                </form>
+                
+                <button type="button" onclick="loadDataToDatabase()">Opslaan in Database</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="images-container">
+        <div class="image">
+            <img src="data:image/png;base64,{{ plot_base64 }}" alt="Plot Image">
+        </div>
+        <div class="image">
+            <img src="data:image/png;base64,{{ image_base64 }}" alt="Price Distribution Chart">
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-box">
+            
+            <button onclick="window.location.href='/'">Start scraping</button>
+            <button onclick="window.location.href='/price_analysis'">Go to Price Analysis</button>
+            <p>© 2024 - Booking.com Web Scraping</p>
+        </div>
+        
+    </footer>
+</body>
+</html>

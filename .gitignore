@@ -1,0 +1,8 @@
+venv
+venv/
+*.csv
+__pycache__/
+*.pyc
+eurodata_csv/
+csv_data
+bookings/

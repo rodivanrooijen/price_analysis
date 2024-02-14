@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+            min-height: 100vh; /* Ensure the body takes up at least the full height of the viewport */
+        }
+
+        .header {
+            margin-top: 1vh;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 5vh;
+        }
+
+        /* Added styles for dropdown menus */
+        #left-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #right-section {
+            flex: 1;
+            padding: 20px;
+            max-width: 600px; /* Set maximum width for the right section */
+            width: 100%; /* Ensure the right section takes up the available width */
+            overflow: auto; /* Enable scrolling if content overflows */
+        }
+
+        h1 {
+            color: rgb(17, 81, 102); /* Change to your preferred color */
+            font-family: 'Lobster', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            color: #333;
+            width: 250px;
+            margin-top: 10px;
+        }
+
+        select:hover {
+            border-color: #555;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        select option {
+            font-size: 16px;
+        }
+
+        #calendar {
+            max-width: 600px;
+            width: 100%;
+        }
+
+            
+        footer {
+            background-color: #f4f4f4;
+            padding: 10px;
+            text-align: center;
+            margin-top: 20vh; /* Push footer to the bottom */
+            width: 100%; /* Ensure footer spans the entire width */
+        }
+
+        .footer-box {
+            text-align: center;
+            display: inline-block; /* Ensures center alignment */
+        }
+
+        .footer-content {
+            display: inline-block; /* Ensures center alignment */
+        }
+
+        button {
+            background-color: rgb(17, 81, 102);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: rgb(12, 62, 80);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Price Analysis Tool</h1>
+    </div>
+    <div class="container">
+        <div id="left-section">
+            
+
+            <label>Selecteer een hotel:</label>
+            <select id="hotelDropdown">
+                {% for hotel in hotels %}
+                    <option value="{{ hotel }}">{{ hotel }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Selecteer een kamertype:</label>
+            <select id="kamertypeDropdown">
+                {% for kamertype in kamertypes %}
+                    <option value="{{ kamertype }}">{{ kamertype }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="right-section">
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Function to fetch and update events based on hotel and kamertype
+            function updateCalendarEvents(hotel, kamertype) {
+                // Make a request to the server to get prices and average prices based on the selected hotel and kamertype
+                Promise.all([
+                    fetch(`/get_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json()),
+                    fetch("/get_avg_prices_by_date").then(response => response.json())
+                ]).then(([pricesByDate, avgPricesByDate]) => {
+                    // Clear existing events
+                    $('#calendar').fullCalendar('removeEvents');
+
+                    
+
+                    // Add new events based on the fetched average prices
+                    for (const date in avgPricesByDate) {
+                        const avgPrice = avgPricesByDate[date];
+                        $('#calendar').fullCalendar('renderEvent', {
+                            title: '€' + avgPrice,
+                            start: date,
+                            end: date,
+                            avgPrice: avgPrice,
+                            color: 'orange'
+                        });
+                    }
+                    // Add new events based on the fetched prices
+                    for (const date in pricesByDate) {
+                        const price = pricesByDate[date];
+                        $('#calendar').fullCalendar('renderEvent', {
+                            title: '€' + price,
+                            start: date,
+                            end: date,
+                            price: price,
+                            color: 'lightblue'
+                        });
+                    }
+                });
+            }
+
+            // Event listeners for dropdown changes
+            $("#hotelDropdown, #kamertypeDropdown").change(function() {
+                const selectedHotel = $("#hotelDropdown").val();
+                const selectedKamertype = $("#kamertypeDropdown").val();
+                updateCalendarEvents(selectedHotel, selectedKamertype);
+            });
+
+            // Calendar configuration options
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month'
+                }
+                // Add other configuration options as needed
+            });
+
+            // Initial update based on the default hotel and kamertype
+            const selectedHotel = $("#hotelDropdown").val();
+            const selectedKamertype = $("#kamertypeDropdown").val();
+            updateCalendarEvents(selectedHotel, selectedKamertype);
+        });
+
+    </script>
+    <footer>
+        <div class="footer-box">
+            <div class="footer-content"> <!-- Added container for footer content -->
+                <button onclick="window.location.href='/'">Start scraping</button>
+                <button onclick="window.location.href='/price_analysis'">Go to Price Analysis</button>
+                <p>© 2024 - Booking.com Web Scraping</p>
+            </div>
+        </div>
+    </footer>
+    
+</body>
+</html>
+

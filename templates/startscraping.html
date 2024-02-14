@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Start Scraping</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
+</head>
+<body>
+    <h1>Booking.com scraping</h1>
+    <p>Choose the desired input parameters:</p>
+
+    <form id="dataForm" action="/" method="POST" enctype="application/x-www-form-urlencoded">
+        <label for="stad">City:</label>
+        <input type="text" id="stad" name="stad" value="Maastricht">
+        
+        <br>
+        <br>
+
+        <label for="datum">Check prices for the following date:</label>
+        <input type="date" id="datum" name="datum">
+
+        <script>
+            // Set today's date as the default value for the date input
+            document.getElementById("datum").valueAsDate = new Date();
+        </script>
+        
+        <br>
+        <br>
+
+        <label for="volwassenen">Number of adults:</label>
+        <input type="number" id="volwassenen" name="volwassenen" min="1" value="2">
+        
+        <br>
+        <br>
+
+        <label for="kinderen">Number of children:</label>
+        <input type="number" id="kinderen" name="kinderen" min="0" value="0">
+
+        <br>
+        <br>
+
+        <label for="paginas">Number of pages to be scraped: (2 recommended):</label>
+        <input type="number" id="paginas" name="paginas" min="1" value="2" max ="5">
+
+        <br>
+        <br>
+
+        <!-- Use type="button" to prevent form submission -->
+        <button type="button" onclick="submitForm()">Submit the input</button>
+    </form>
+
+    <script>
+        function submitForm() {
+            // Get values from the form
+            const stad = document.getElementById("stad").value;
+            const datum = document.getElementById("datum").value;
+            const volwassenen = document.getElementById("volwassenen").value;
+            const kinderen = document.getElementById("kinderen").value;
+            const paginas = document.getElementById("paginas").value;
+
+            // Construct the URL
+            const url = `/scrapingresult?stad=${stad}&checkin_datum=${datum}&num_volwassenen=${volwassenen}&num_kinderen=${kinderen}&max_paginas=${paginas}`;
+
+            // Redirect the user to the specified URL
+            window.location.href = url;
+        }
+    </script>
+    <footer>
+        <div class="footer-box">
+            
+            <button onclick="window.location.href='/'">Start scraping</button>
+            <button onclick="window.location.href='/price_analysis'">Go to Price Analysis</button>
+            
+            <p>© 2024 - Booking.com Web Scraping</p>
+        </div>
+        
+    </footer>
+</body>
+</html>
