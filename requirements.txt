@@ -11,6 +11,7 @@ sorted_months_weekdays
 jinja2
 fastapi
 uvicorn[standard]
+gunicorn
 databases
 sqlalchemy
 pyodbc
