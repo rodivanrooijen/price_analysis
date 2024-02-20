@@ -12,8 +12,8 @@ num_kinderen = None
 max_paginas = None
 
 def get_input_parameters(
-    stad: str = Query("Maastricht", description="The city name"),
-    checkin_datum: str = Query("2024-02-14", description="Check-in date"),
+    stad: str = Query("Amsterdam", description="The city name"),
+    checkin_datum: str = Query("2024-02-23", description="Check-in date"),
     num_volwassenen: int = Query(2, description="Number of adults"),
     num_kinderen: int = Query(0, description="Number of children"),
     max_paginas: int = Query(2, description="Maximum pages to scrape"),

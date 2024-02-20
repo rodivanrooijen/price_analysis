@@ -173,7 +173,7 @@ async def load_data(
     global hotelgegevens
 
     # Extract values from the tuple
-    stad, checkin_datum, num_volwassenen, num_kinderen, max_paginas = input_params
+    #stad, checkin_datum, num_volwassenen, num_kinderen, max_paginas = input_params
 
     if hotelgegevens is not None and not hotelgegevens.empty:
         for _, row in hotelgegevens.iterrows():

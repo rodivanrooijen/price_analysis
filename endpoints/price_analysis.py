@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, func, select, literal_column, text, case
@@ -80,17 +80,41 @@ async def get_prices_by_date(hotel: str, kamertype: str, db: Session = Depends(g
 
 # Endpoint to fetch average prices per date from the HotelData table
 @router.get("/get_avg_prices_by_date")
-async def get_avg_prices_by_date(db: Session = Depends(get_db)):
+async def get_avg_prices_by_date(hotel: str, kamertype: str, db: Session = Depends(get_db)):
     """
     Endpoint to fetch average prices per date from the HotelData table.
 
     Returns:
     - A JSON response containing average prices by date.
     """
+
+    if hotel is None or kamertype is None:
+        return {"error": "Please provide both a hotel name and a room type."}
+    
     avg_prices_by_date = {}
 
-    # Query the database to get average prices per date
-    avg_prices = db.query(func.date(HotelData.checkin_datum), func.avg(HotelData.prijs)).group_by(func.date(HotelData.checkin_datum)).all()
+    # Extract the first word from the hotel name
+    first_word = hotel.split()[0]
+
+    # Infer number of adults and children based on room type
+    if kamertype == "een_persoons_kamer":
+        num_adults = 1
+        num_children = 0
+    elif kamertype == "twee_persoons_kamer":
+        num_adults = 2
+        num_children = 0
+    elif kamertype == "Familiekamer":
+        # Family room can have 1 or more children
+        num_adults = 2  # Assuming family room has space for 2 adults
+        num_children = 2  # Minimum 1 child, adjust as needed
+
+    # Query the database to get average prices per date for the specified hotel and room type
+    avg_prices = db.query(func.date(HotelData.checkin_datum), func.avg(HotelData.prijs)) \
+                    .filter(HotelData.stad.like(f"{first_word}%")) \
+                    .filter(HotelData.num_volwassenen == num_adults) \
+                    .filter(HotelData.num_kinderen == num_children) \
+                    .group_by(func.date(HotelData.checkin_datum)) \
+                    .all()
 
     for date_str, avg_price in avg_prices:
         # Convert string date to datetime object
@@ -119,14 +143,32 @@ async def get_prices_by_date_and_type(date: str, hotel: str, kamertype: str, db:
     - A JSON response containing the average, mode, and median prices.
     """
     # Adjust the hotel name to search in the 'stad' column
-    adjusted_hotel_name = hotel.replace(" Hotel", "")
+    #adjusted_hotel_name = hotel.replace(" Hotel", "")
+
+    # Find the index of the first space
+    first_space_index = hotel.find(" ")
+
+    # Remove everything from the first space onwards
+    if first_space_index != -1:
+        adjusted_hotel_name = hotel[:first_space_index]
+    else:
+        adjusted_hotel_name = hotel
 
     # Determine the number of adults based on the selected room type
     num_volwassenen = case(
         {
             kamertype == "een_persoons_kamer": 1,
             kamertype == "twee_persoons_kamer": 2,
-            kamertype == "familiekamer": 2
+            kamertype == "Familiekamer": 2
+        },
+        else_=1  # Default to 1 if room type is not recognized
+    )
+
+    num_kinderen = case(
+        {
+            kamertype == "een_persoons_kamer": 0,
+            kamertype == "twee_persoons_kamer": 0,
+            kamertype == "Familiekamer": 2
         },
         else_=1  # Default to 1 if room type is not recognized
     )
@@ -140,7 +182,8 @@ async def get_prices_by_date_and_type(date: str, hotel: str, kamertype: str, db:
         .filter(
             HotelData.stad == adjusted_hotel_name,
             HotelData.checkin_datum == date,
-            HotelData.num_volwassenen == num_volwassenen
+            HotelData.num_volwassenen == num_volwassenen,
+            HotelData.num_kinderen == num_kinderen
         )
         .group_by(HotelData.stad, HotelData.checkin_datum, num_volwassenen)
     )
@@ -159,7 +202,8 @@ async def get_prices_by_date_and_type(date: str, hotel: str, kamertype: str, db:
         .filter(
             HotelData.stad == adjusted_hotel_name,
             HotelData.checkin_datum == date,
-            HotelData.num_volwassenen == num_volwassenen
+            HotelData.num_volwassenen == num_volwassenen,
+            HotelData.num_kinderen == num_kinderen
         )
         .group_by(HotelData.prijs)
         .order_by(func.count(HotelData.prijs).desc())
@@ -190,7 +234,7 @@ async def get_prices_by_date_and_type(date: str, hotel: str, kamertype: str, db:
 
     #graphs
     # Query the database to fetch prices from the hoteldata table based on the selected date
-    hotelgegevens = db.query(HotelData.prijs).filter(HotelData.checkin_datum == date).all()
+    hotelgegevens = db.query(HotelData.prijs).filter(HotelData.checkin_datum == date).filter(HotelData.stad.like(f"{adjusted_hotel_name}%")).filter(HotelData.num_volwassenen == num_volwassenen).filter(HotelData.num_kinderen == num_kinderen).all()
     # Convert the query result to a pandas DataFrame for easier manipulation
     hotelgegevens = pd.DataFrame(hotelgegevens, columns=['prijs'])
     # Calculate average, mode, and median prices
@@ -225,7 +269,7 @@ async def get_prices_by_date_and_type(date: str, hotel: str, kamertype: str, db:
 
     #plot 2
     # Query the database to fetch hotel data
-    hotelgegevens2 = db.query(HotelData.naam, HotelData.locatie, HotelData.prijs, HotelData.beoordeling).filter(HotelData.checkin_datum == date).all()
+    hotelgegevens2 = db.query(HotelData.naam, HotelData.locatie, HotelData.prijs, HotelData.beoordeling).filter(HotelData.checkin_datum == date).filter(HotelData.stad.like(f"{adjusted_hotel_name}%")).filter(HotelData.num_volwassenen == num_volwassenen).filter(HotelData.num_kinderen == num_kinderen).all()
 
     # Convert the query result to a pandas DataFrame for easier manipulation
     hotelgegevens2 = pd.DataFrame(hotelgegevens2, columns=['naam', 'locatie', 'prijs', 'beoordeling'])
@@ -271,3 +315,31 @@ async def get_prices_by_date_and_type(date: str, hotel: str, kamertype: str, db:
         "image_base64": image_base64,
         "plot_base64": plot_base64
     }
+
+@router.post("/update_price")
+async def update_price(
+    hotel: str,
+    kamertype: str,
+    date: str,
+    new_price: float,
+    db: Session = Depends(get_db)
+):
+    # Query the database to find the hotel price entry for the given hotel, room type, and date
+    hotel_price = db.query(Prijzen).filter_by(
+        hotel=hotel,
+        kamertype=kamertype,
+        datum=date
+    ).first()
+
+    if hotel_price is None:
+        # If no entry is found, return an error
+        raise HTTPException(status_code=404, detail="Hotel price entry not found")
+
+    # Update the price with the new value
+    hotel_price.prijs = new_price
+
+    # Commit the changes to the database
+    db.commit()
+
+    # Return a success message
+    return {"message": "Price updated successfully"}

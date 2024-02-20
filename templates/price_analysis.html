@@ -23,10 +23,25 @@
             align-items: center;
             min-height: 100vh;
         }
+        .background-image {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8)), 
+            url('https://yc2401fotos.blob.core.windows.net/upload/hotels/Hotel_6_Pic_2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
 
         .header {
             margin-top: 20px;
             text-align: center;
+            font-family: 'Arial', sans-serif;
         }
 
         .container {
@@ -56,7 +71,7 @@
 
         h1 {
             color: #06313e;
-            font-family: 'Lobster', cursive;
+            font-family: 'Arial', sans-serif;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
         }
@@ -107,15 +122,23 @@
 
         #calendar {
             max-width: 800px; /* Adjust based on your preference */
-            margin-top: 0; /* Remove the margin-top */
+            margin-top: 20px; /* Remove the margin-top */
+            background-color: #2f2f2fb5;
+            padding: 20px;
+            border-radius: 5px;
+            color:#ffffff;
+            position: relative; /* Add position relative to maintain stacking context */
+            z-index: 1; /* Set a higher z-index to keep it above other elements */
         }
 
         footer {
-            background-color: #f4f4f4;
+            background-color: #2f2f2fb5;
             padding: 20px;
             text-align: center;
             margin-top: auto;
             width: 100%;
+            color:#ffffff;
+ 
         }
 
         .footer-box {
@@ -151,112 +174,203 @@
         }
 
         .select-container, #datePickerContainer {
-            border: 1px solid #ccc;
+            border: none;
             border-radius: 5px;
             padding: 10px;
             margin-top: 20px;
             margin-bottom: 10px;
-            background-color: #fff;
+            background-color: #2f2f2fb5;
             width: 250px; /* Adjust width as needed */
+            color:#f4f4f4
         }
 
         #pricePopup {
-            border: 1px solid #ccc;
             border-radius: 5px;
             padding: 10px;
             margin-top: 20px;
-            margin-bottom: 10px;
-            background-color: #fff;
+            background-color: #2f2f2fb5;
             width: 250px; /* Adjust width as needed */
+            color:#f4f4f4
         }
-        
+
+        #plotsContainer {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start; /* Align plots to the top of the container */
+            width: 95%; /* Adjust width */
+            margin: 20px auto; /* Center the container and add margin */
+            z-index: 0;
+            max-width: 1500px;
+        }
+
         #scatterPlot {
-            /* Remove border */
-            border: none;
-            /* Remove background */
-            background-color: transparent;
-            /* Remove shadow */
-            box-shadow: none;
-            margin-top: -10px; /* Adjust as needed */
-            width: 200px;
-            margin-bottom: -20px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px 0; /* Adjust margin */
+            margin-top: -20px;
+            width: calc(50% - 50px); /* Adjust width */
+            overflow: auto; /* Add overflow property to enable scrolling if needed */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow for better visualization */
+            z-index: 0;
         }
 
         #otherPlot {
-            /* Remove border */
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px 0; /* Adjust margin */
+            margin-top: -20px;
+            width: calc(50% - 50px); /* Adjust width */
+            overflow: auto; /* Add overflow property to enable scrolling if needed */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow for better visualization */
+            z-index: 0;
+        }
+
+        #scatterPlot img {
+            width: 100%;
+            height: 100%;
+        }
+
+        #otherPlot img {
+            width: 95%;
+            height: 95%;
+        }
+
+        .background-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center; /* Align items horizontally at the center */
+            background-color: rgba(235, 232, 232, 0.59);
+            height: auto;
+            backdrop-filter: blur(5px);
+            width: 95%;
+            border-radius: 2rem;
             border: none;
-            /* Remove background */
-            background-color: transparent;
-            /* Remove shadow */
-            box-shadow: none;
-            margin-top: -10px; /* Adjust as needed */
-            margin-left: 75%;
-            width: 200px;
-            margin-bottom: -20px;
+            margin: 2%;
+            margin-right: 20%;
+            margin-left: 20%;
         }
 
 
+        
 
+        /* Navbar */
+        .navbar {
+            background-color: transparent; /* Set the background color of the navbar to transparent */
+            border: none; /* Remove the border */
+            margin-top: 20px; /* Add some top margin to push down the content */
+            margin-bottom: -20px; /* Add some bottom margin to push down the content */
+        }
+
+        .navbar-nav {
+            display: flex; /* Use flexbox to align items */
+            align-items: center; /* Center the items vertically */
+        }
+
+        .nav-item {
+            margin-right: 20px; /* Add spacing between items */
+        }
+
+        .nav-link {
+            color: #ffffff;
+            font-size: 20px; /* Adjust font size */
+            text-decoration: none; /* Remove the underline */
+            padding: 0; /* Remove padding */
+        }
+
+        .nav-link img {
+            margin-right: 10px; /* Add spacing between the logo and the text */
+        }
+
+        .navbar-nav .nav-item {
+            list-style-type: none; /* Remove the default list-style */
+        }
+
+        #nav-top a{
+            color: #ffffff;
+            font-size: 30px;
+            font-weight: 600;
+
+        }
 
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Price Analysis Tool</h1>
-    </div>
-    <div class="info_box">
-        <p>This tool can help you analyse the prices of a hotel and roomtype compared to competitors.In red you find the average price of competitors in the region. If prices are not available, you can start scraping prices for this date.</p>
-    </div>
-    <div class="container">
-        <div id="left-section">
-            <div class="select-container">
-                <label for="hotelDropdown">Select a hotel:</label>
-                <select id="hotelDropdown">
-                    {% for hotel in hotels %}
-                        {% if hotel == "Maastricht Hotel" %}
-                            <option value="{{ hotel }}" selected>{{ hotel }}</option>
-                        {% else %}
-                            <option value="{{ hotel }}">{{ hotel }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            
-                <label for="kamertypeDropdown">Select a roomtype:</label>
-                <select id="kamertypeDropdown">
-                    {% for kamertype in kamertypes %}
-                        {% if kamertype == "twee_persoons_kamer" %}
-                            <option value="{{ kamertype }}" selected>{{ kamertype }}</option>
-                        {% else %}
-                            <option value="{{ kamertype }}">{{ kamertype }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div> 
-            <div id="datePickerContainer" class="select-container">
-                <label for="datePicker">Select a date:</label>
-                <div id="datePickerBox">
-                    <input type="date" id="datum" name="datum">
+    <div class="background-image"></div>
 
-                    <script>
-                        // Set today's date as the default value for the date input
-                        document.getElementById("datum").valueAsDate = new Date();
-                    </script>
-                </div>
-            </div>
-            <div id="pricePopup" style="display: none;"></div>
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light justify-content-center" id="nav-top">
+        <ul class="navbar-nav">
+        <li class="nav-item">
+            <a href="http://20.238.192.119/index.html"><img src="https://yc2401fotos.blob.core.windows.net/upload/Papaya_logo_1.png" alt="Papaya" width="100" height="80">
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="http://20.238.192.119/manager.html" id="Logo" >Back to the manager dashboard</a>
+        </li>
+        </ul>
+    </nav>
 
-            <div id="plotsContainer" class="container">
-                <div id="scatterPlot" class="info_box">
-                    <!-- Scatter plot will be inserted here -->
-                </div>
-                <div id="otherPlot" class="info_box">
-                    <!-- Second plot will be inserted here -->
-                </div>
-            </div>
-
+    <div class="background-wrapper">
+        <div class="header">
+            <h1>Price Analysis Tool</h1>
         </div>
-        <div id="right-section">
-            <div id="calendar"></div>
+        <div class="info_box">
+            <p>This tool can help you analyse the prices of a hotel and roomtype compared to competitors.In red you find the average price of competitors in the region. If prices are not available, you can start scraping prices for this date.</p>
+        </div>
+        <div class="container">
+            <div id="left-section">
+                <div class="select-container">
+                    <label for="hotelDropdown">Select a hotel:</label>
+                    <select id="hotelDropdown">
+                        {% for hotel in hotels %}
+                            {% if hotel == "Maastricht Manor" %}
+                                <option value="{{ hotel }}" selected>{{ hotel }}</option>
+                            {% else %}
+                                <option value="{{ hotel }}">{{ hotel }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                
+                    <label for="kamertypeDropdown">Select a roomtype:</label>
+                    <select id="kamertypeDropdown">
+                        {% for kamertype in kamertypes %}
+                            {% if kamertype == "twee_persoons_kamer" %}
+                                <option value="{{ kamertype }}" selected>{{ kamertype }}</option>
+                            {% else %}
+                                <option value="{{ kamertype }}">{{ kamertype }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div> 
+                <div id="datePickerContainer" class="select-container">
+                    <label for="datePicker">Select a date:</label>
+                    <div id="datePickerBox">
+                        <input type="date" id="datum" name="datum">
+
+                        <script>
+                            // Set today's date as the default value for the date input
+                            document.getElementById("datum").valueAsDate = new Date();
+                        </script>
+                    </div>
+                </div>
+                <div id="pricePopup" style="display: none;"></div>
+
+            </div>
+            <div id="right-section">
+                <div id="calendar"></div>
+            </div>
+
+            
+        </div>
+        <div id="plotsContainer" >
+            <div id="scatterPlot">
+                <!-- Scatter plot will be inserted here -->
+            </div>
+            <div id="otherPlot" >
+                <!-- Second plot will be inserted here -->
+            </div>
         </div>
     </div>
     <script>
@@ -266,7 +380,7 @@
                 // Make a request to the server to get prices and average prices based on the selected hotel and kamertype
                 Promise.all([
                     fetch(`/get_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json()),
-                    fetch("/get_avg_prices_by_date").then(response => response.json())
+                    fetch(`/get_avg_prices_by_date?hotel=${hotel}&kamertype=${kamertype}`).then(response => response.json())
                 ]).then(([pricesByDate, avgPricesByDate]) => {
                     // Clear existing events
                     $('#calendar').fullCalendar('removeEvents');
@@ -314,8 +428,8 @@
                         const img = document.createElement("img");
                         img.src = `data:image/png;base64, ${data.plot_base64}`;
                         // Set width and height of the image element
-                        img.style.width = "600px";
-                        img.style.height = "500px";
+                        img.style.width = "95%";
+                        img.style.height = "95%";
     
                         // Append the <img> element to the scatter plot container
                         $("#scatterPlot").append(img);
@@ -351,8 +465,8 @@
                         img.src = `data:image/png;base64, ${data.image_base64}`;
                         img.alt = "Second Plot";
                         // Set width and height of the image element
-                        img.style.width = "750px";
-                        img.style.height = "500px";
+                        img.style.width = "95%";
+                        img.style.height = "95%";
     
                         // Append the <img> element to the second plot container
                         $("#otherPlot").append(img);
@@ -444,10 +558,37 @@
                 // Display an alert with an input field for editing the price
                 const newPrice = prompt("Enter the new price:");
                 if (newPrice !== null) {
-                    // Handle the new price (e.g., update it on the server)
-                    alert(`The new price is: €${newPrice}`);
-                    // Update the displayed price if needed
-                    // Example: $("#currentPrice").text(`€${newPrice}`);
+                    // Construct the URL
+                    const selectedHotel = $("#hotelDropdown").val();
+                    const selectedKamertype = $("#kamertypeDropdown").val();
+                    const selectedDate = $("#datum").val();
+                    const url = `/update_price?date=${selectedDate}&hotel=${encodeURIComponent(selectedHotel)}&kamertype=${encodeURIComponent(selectedKamertype)}&new_price=${parseFloat(newPrice)}`;
+                    
+                    // Send a POST request to update the price
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            hotel: selectedHotel,
+                            kamertype: selectedKamertype,
+                            date: selectedDate,
+                            new_price: parseFloat(newPrice)
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Display a success message or handle any errors
+                        alert(data.message);
+                        // Reload the page to reflect the updated changes
+                        location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error updating price:', error);
+                        // Handle errors
+                        alert('Error updating price');
+                    });
                 }
             });
         });
