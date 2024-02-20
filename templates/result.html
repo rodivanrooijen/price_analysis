@@ -92,10 +92,11 @@
 
         /* Footer Styles */
         footer {
-            background-color: #f4f4f4;
+            background-color: #2f2f2fb5;
             padding: 20px; /* Increased padding */
             text-align: center;
             margin-top: auto;
+            color: #fff;
         }
 
         footer p {
@@ -191,8 +192,9 @@
             justify-content: center;
         }
 
-        .graph {
-            width: 48%;
+        .graph img {
+            max-width: 100%; /* Make the image responsive by setting its maximum width to 100% of its container */
+            height: auto; /* Ensure the aspect ratio is maintained */
         }
 
         /* Styles for the "Opslaan als CSV" and "Opslaan in Database" buttons */
@@ -231,9 +233,103 @@
         .button-container .save-btn:hover {
             background-color: #418bb0; /* Darker shade on hover */
         }
+
+        .background-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center; /* Align items horizontally at the center */
+            background-color: rgba(235, 232, 232, 0.59);
+            height: auto;
+            backdrop-filter: blur(5px);
+            width: auto;
+            border-radius: 2rem;
+            border: none;
+            padding: 2%;
+            margin: 2%;
+            margin-right: 5%;
+            margin-left: 5%;
+        }
+
+
+        
+
+        /* Navbar */
+        .navbar {
+            background-color: transparent;
+            border: none;
+            margin-top: 40px;
+            margin-bottom: -20px;
+            margin: 0 auto; /* Horizontally center the navbar */
+        }
+
+        .navbar-nav {
+            display: flex; /* Use flexbox to align items */
+            align-items: center; /* Center the items vertically */
+            margin-top: 40px;
+        }
+
+        .nav-item {
+            margin-right: 20px; /* Add spacing between items */
+        }
+
+        .nav-link {
+            color: #ffffff;
+            font-size: 20px; /* Adjust font size */
+            text-decoration: none; /* Remove the underline */
+            padding: 0; /* Remove padding */
+        }
+
+        .nav-link img {
+            margin-right: 10px; /* Add spacing between the logo and the text */
+        }
+
+        .navbar-nav .nav-item {
+            list-style-type: none; /* Remove the default list-style */
+        }
+
+        #nav-top a{
+            color: #ffffff;
+            font-size: 30px;
+            font-weight: 600;
+
+        }
+
+        .background-image {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8)), 
+            url('https://yc2401fotos.blob.core.windows.net/upload/hotels/Hotel_6_Pic_2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
     </style>
 </head>
 <body>
+    <div class="background-image"></div>
+
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light justify-content-center" id="nav-top">
+        <ul class="navbar-nav">
+        <li class="nav-item">
+            <a href="http://20.238.192.119/index.html"><img src="https://yc2401fotos.blob.core.windows.net/upload/Papaya_logo_1.png" alt="Papaya" width="100" height="80">
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/price_analysis" id="Logo" >Price Analysis</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="http://20.238.192.119/manager.html" id="Logo" >Manager Dash</a>
+        </li>
+        
+        </ul>
+    </nav>
+
+    <div class="background-wrapper">
     <h1>Booking.com Web Scraping</h1>
     <div class="container">
         <div class="input-output-container">
@@ -273,11 +369,11 @@
             </div>
         </div>
     </div>
-
+    </div>
     <footer>
         <div class="footer-box">
             <button onclick="window.location.href='/start_scraping'">Start scraping</button>
-            <button onclick="window.location.href='/price_analysis'">Go to Price Analysis</button>
+            <button onclick="window.location.href='/price_analysis'">Price Analysis</button>
             <p>© 2024 - Booking.com Web Scraping</p>
         </div>
     </footer>
